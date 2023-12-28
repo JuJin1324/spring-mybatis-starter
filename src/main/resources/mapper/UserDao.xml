@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="move.saas.api.member.adapter.out.persistence.MemberViewDao">
+    <resultMap id="phoneNumberResultMap" type="starter.mybatis.domain.PhoneNumber">
+    </resultMap>
+
+    <resultMap id="userResultMap" type="starter.mybatis.domain.User">
+        <result property="id" column="id"/>
+        <result property="uuid" column="uuid" javaType="java.util.UUID"
+                typeHandler="starter.mybatis.typehandler.UUIDTypeHandler"/>
+        <association property="phoneNumber" resultMap="phoneNumberResultMap"/>
+    </resultMap>
+
+    <select id="findById" resultMap="userResultMap">
+        SELECT id,
+               UUID_TO_BIN(HEX(uuid)) as uuid,
+               country_code,
+               phone_number           as number,
+        FROM user
+        WHERE id = #{id}
+    </select>
+
+    <select id="findByUuid" resultMap="userResultMap">
+        SELECT id,
+               UUID_TO_BIN(HEX(uuid)) as uuid,
+               country_code,
+               phone_number           as number,
+        FROM user
+        WHERE uuid = UNHEX(REPLACE(#{uuid}, '-', ''))
+    </select>
+
+    <select id="countUsers" resultType="int">
+        SELECT COUNT(*)
+        FROM user
+    </select>
+</mapper>

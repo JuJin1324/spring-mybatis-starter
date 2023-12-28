@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="utf-8"?>
+<databaseChangeLog
+        xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.6.xsd">
+
+    <changeSet id="changelog-1.0" author="jujin">
+        <comment>사용자(User) 테이블 생성</comment>
+
+        <createTable tableName="user" comment="사용자 테이블">
+            <column name="id" type="BIGINT" autoIncrement="true" remarks="계정 ID">
+                <constraints primaryKey="true" nullable="false"/>
+            </column>
+            <column name="uuid" type="BINARY(16)" remarks="계정 UUID"/>
+            <column name="country_code" type="VARCHAR(8)" remarks="국제 코드"/>
+            <column name="phone_number" type="VARCHAR(20)" remarks="휴대폰 번호"/>
+        </createTable>
+
+        <rollback>
+            <dropTable tableName="user"/>
+        </rollback>
+    </changeSet>
+</databaseChangeLog>
