@@ -164,6 +164,9 @@
 >     }
 > }
 > ```
+> MySQL 에 UUID 를 Binary(16) 으로 저장한 경우에 select 쿼리에서 text 형태로 변환할 필요 없이 binary 값 그대로
+> 반환해도 UUIDTypeHandler 를 통해서 자동 변환이 가능하다.
+> 
 > MyBatis 설정에 주입하게되면 resultMap 에 TypeHandler 를 일일히 명시하지 않아도 된다.
 > MyBatisConfig.java
 > ```java
