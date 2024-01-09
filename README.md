@@ -91,6 +91,41 @@
 > @NoArgsConstructor(access = AccessLevel.PROTECTED) 선언 및
 > @Setter(AccessLevel.PROTECTED) 를 선언해서 Setter 로 맵핑하는 것을 권장한다.
 
+### 동일 테이블 조인
+> 동일 테이블을 여러번 조인할 시 각 테이블에 대해서 resultMap 따로 만들어야함. 
+> 예를 들어 chatrooms 테이블에서 operator 와 participant 로 users 테이블 조인을 여러번 조인하는 경우에
+> operator, participant 모두 users 테이블이라고 해서 resultMap 으로 userResultMap 을 하나로 사용하면 비정상 동작함.
+> operatorResultMap 및 participantResultMap 을 따로 만들어서 적용해줘야함.
+> ```xml
+> <resultMap id="operatorResultMap" type="starter.mybatis.domain.ParticipantView">
+>     <result property="userId" column="operator_id"/>
+>     <result property="name" column="operator_name"/>
+> </resultMap>
+> <resultMap id="participantResultMap" type="starter.mybatis.domain.ParticipantView">
+>     <result property="userId" column="participant_id"/>
+>     <result property="name" column="participant_name"/>
+> </resultMap>
+> <resultMap id="chatroomResultMap" type="starter.mybatis.domain.ChatRoomView">
+>     ...
+>     <association property="operator" resultMap="operatorResultMap"/>
+>     <collection property="participants" resultMap="participantResultMap"/>
+> </resultMap>
+> 
+> <select id="findById" resultMap="chatroomResultMap">
+>     select
+>         c.id as chatroom_id, 
+>         c.title as title.
+>         o.id as operator_id,
+>         o.name as operator_name,
+>         p.id as participant_id,
+>         p.name as participant_name
+>     from chatrooms c
+>     inner join users as o on c.operator_id = o.id
+>     inner join chatroom_participants cp on c.id = cp.chatroom_id
+>     inner join users as p on cp.id = p.id
+> </select>
+> ```
+
 ### TypeHandler
 > MyBatis 에서 제공하지 않는 데이터타입을 맵퍼 클래스 메서드의 @Param 으로 받거나 resultMap 을 통해서 맵핑 객체에
 > 데이터타입을 주입할 때에는 사용자가 커스텀으로 TypeHandler 를 만들어서 MyBatis 설정에 주입해야한다.  
@@ -129,6 +164,7 @@
 >     }
 > }
 > ```
+> MyBatis 설정에 주입하게되면 resultMap 에 TypeHandler 를 일일히 명시하지 않아도 된다.
 > MyBatisConfig.java
 > ```java
 > @Configuration
@@ -137,7 +173,7 @@
 >     @Bean
 >     public ConfigurationCustomizer mybatisConfigurationCustomizer() {
 >         return configuration -> {
->             configuration.getTypeHandlerRegistry().register(UUID.class, JdbcType.VARCHAR, new UUIDTypeHandler());
+>             configuration.getTypeHandlerRegistry().register(UUID.class, JdbcType.BINARY, new UUIDTypeHandler());
 >         };
 >     }
 > }
